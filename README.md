@@ -18,7 +18,7 @@ Click on the Deploy to Azure button to start the deployment of the test environm
 
 After clicking the link and signing in to your Azure environment, you should be greeted with a page with contents similar to this:
 
-![Template deployment](.img\basics_1.png)
+![Template deployment](.img/basics_1.png)
 
 Create a new Resource Group for the test environment, select a Region where you would like to have the test resources to be deployed and adjust the parameters as you see fit. After adjusting the parameters, click on `review+create` and after the validation has passed click on `create`. Wait for the template deployment to finish (should take only a few minutes).
 
@@ -32,11 +32,11 @@ To onboard the VM to the Automanage, go back to the Automanage machines page and
 
 In the first dialog that appears, select the custom profile that you deployed.
 
-![Select Profile](.img\basics_2.png)
+![Select Profile](.img/basics_2.png)
 
 On the next page, select the VM(s) you would like to onboard with the custom profile.
 
-![Select VM(s)](.img\basics_3.png)
+![Select VM(s)](.img/basics_3.png)
 
 Click on `review+create` and after the validation has passed click on `create`. Onboarding the VM(s) will take some minutes and you can check the progress from the Automanage machines page.
 
@@ -46,17 +46,17 @@ For this test environment we are going to implement the Azure Automation Account
 
 Go to the Automation Account and to the Update Management pane. Depending on the refresh cycle, the VM(s) you deployed might be already visible on the Machines tab of the Update Management
 
-![VMs in UM](.img\basics_4.png)
+![VMs in UM](.img/basics_4.png)
 
 In order to enable automated patching of the VM(s) you need to create a Deployment Schedule that is associated with the VM(s). To create a schedule, click on the `Schedule update deployment` button from the top of the page.
 
-In the New update deployment dialog you need to give the schedule a name, scope the resources to be updated and then determine the schedule. You can either assign the update schedule directly to the machine or create a group that targets the subscription/resource group in which the VM(s) reside to include all VM(s) within the give scope, and optionally filtering based on locations or tags, to the update deployment.
+In the New update deployment dialog you need to give the schedule a name, scope the resources to be updated and then determine the schedule. You can either assign the update schedule directly to the machine or create a group that targets the subscription/resource group in which the VM(s) reside to include all VM(s) within the give scope, and optionally filtering based on loScations or tags, to the update deployment.
 
 Next, create a schedule for the update deployment by clicking on the `Schedule settings`. Explore the options available, but create a new schedule using the hourly update deployment for testing purposes. Set the start time to happen after in the next 10 minutes.
 
 Once all required settings have been configured, click on the `create` button to finish creating the update deployment.
 
-![UM schedule](.img\basics_5.png)
+![UM schedule](.img/basics_5.png)
 
 Proceed to the next step, but remember to check back after a while to verify that the VM(s) have been updated correctly.
 
@@ -82,7 +82,7 @@ Go to the Resource Group you created in the first step and find the Storage Acco
 
 Right-click on the SoftwareInstallation.zip file and select Generate SAS. That should open up a dialog for creating a SAS token for accessing this file. In the SAS dialog, set the expiry time to some time in the future, click on the `Generate SAS token and URL` button and copy the Blob SAS URL to your notes. You will need it in the next step.
 
-![SAS dialog](.img\basics_6.png)
+![SAS dialog](.img/basics_6.png)
 
 After you have noted down the SAS token, click on the Deploy to Azure button to start the custom Machine Configuration deployment 
 
@@ -90,7 +90,7 @@ After you have noted down the SAS token, click on the Deploy to Azure button to 
 
 You should be greeted with the following dialog:
 
-![Template deployment](.img\basics_7.png)
+![Template deployment](.img/basics_7.png)
 
 Select the Resource Group you created in the first step, type the VM name you would like to assing the custom configuration package to and then copy the SAS URL you created in the previous step. Click `review+create` and after the validation has passed click on `create`. Wait for the template deployment to finish (should take only a minute).
 
