@@ -9,13 +9,6 @@
                 "description": "short name for the environment"
             }
         },
-        "location": {
-            "defaultValue": "westeurope",
-            "type": "String",
-            "metadata": {
-                "description": "Azure region"
-            }
-        },
         "numberOfTestVMs": {
             "defaultValue": 1,
             "type": "int",
@@ -52,8 +45,8 @@
         {
             "type": "Microsoft.OperationalInsights/workspaces",
             "apiVersion": "2021-12-01-preview",
-            "name": "[format('{0}-demo-{1}-la', parameters('envName'), parameters('location'))]",
-            "location": "[parameters('location')]",
+            "name": "[format('{0}-demo-{1}-la', parameters('envName'), resourceGroup().location)]",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "sku": {
                     "name": "pergb2018"
@@ -72,10 +65,10 @@
         {
             "type": "Microsoft.Automanage/configurationProfiles",
             "apiVersion": "2022-05-04",
-            "name": "[format('{0}-demo-{1}-profile', parameters('envName'), parameters('location'))]",
-            "location": "[parameters('location')]",
+            "name": "[format('{0}-demo-{1}-profile', parameters('envName'), resourceGroup().location)]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-demo-{1}-la', parameters('envName'), parameters('location')))]"
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-demo-{1}-la', parameters('envName'), resourceGroup().location))]"
             ],
             "properties": {
                 "configuration": {
@@ -107,7 +100,7 @@
                     "ChangeTrackingAndInventory/Enable": true,
                     "LogAnalytics/Enable": true,
                     "LogAnalytics/Reprovision": false,
-                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-demo-{1}-la', parameters('envName'), parameters('location')))]",
+                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-demo-{1}-la', parameters('envName'), resourceGroup().location))]",
                     "UpdateManagement/Enable": true,
                     "VMInsights/Enable": true,
                     "Tags/ResourceGroup": {
@@ -138,7 +131,7 @@
             "kind": "Storage"
         },
         {
-            "name": "[format('{0}-demo-{1}-nsg', parameters('envName'), parameters('location'))]",
+            "name": "[format('{0}-demo-{1}-nsg', parameters('envName'), resourceGroup().location)]",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
@@ -162,12 +155,12 @@
             }
         },
         {
-            "name": "[format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location'))]",
+            "name": "[format('{0}-demo-{1}-vnet', parameters('envName'), resourceGroup().location)]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', format('{0}-demo-{1}-nsg', parameters('envName'), parameters('location')))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', format('{0}-demo-{1}-nsg', parameters('envName'), resourceGroup().location))]"
             ],
             "tags": {},
             "properties": {
@@ -178,11 +171,11 @@
                 },
                 "subnets": [
                     {
-                        "name": "[format('{0}-demo-{1}-subnet', parameters('envName'), parameters('location'))]",
+                        "name": "[format('{0}-demo-{1}-subnet', parameters('envName'), resourceGroup().location)]",
                         "properties": {
                             "addressPrefix": "10.0.0.0/24",
                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', format('{0}-demo-{1}-nsg', parameters('envName'), parameters('location')))]"
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', format('{0}-demo-{1}-nsg', parameters('envName'), resourceGroup().location))]"
                             }
                         }
                     }
@@ -216,7 +209,7 @@
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location')))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-demo-{1}-vnet', parameters('envName'), resourceGroup().location))]"
             ],
             "tags": {},
             "properties": {
@@ -229,7 +222,7 @@
                                 "id": "[if(parameters('enablePublicIP'), resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}-pip', variables('vmName'), copyIndex())), null())]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location')), format('{0}-demo-{1}-subnet', parameters('envName'), parameters('location')))]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('{0}-demo-{1}-vnet', parameters('envName'), resourceGroup().location), format('{0}-demo-{1}-subnet', parameters('envName'), resourceGroup().location))]"
                             }
                         }
                     }
@@ -246,7 +239,7 @@
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location')))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-demo-{1}-vnet', parameters('envName'), resourceGroup().location))]"
             ],
             "tags": {},
             "properties": {
@@ -256,7 +249,7 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location')), format('{0}-demo-{1}-subnet', parameters('envName'), parameters('location')))]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('{0}-demo-{1}-vnet', parameters('envName'), resourceGroup().location), format('{0}-demo-{1}-subnet', parameters('envName'), resourceGroup().location))]"
                             }
                         }
                     }
