@@ -97,3 +97,5 @@ Select the Resource Group you created in the first step, type the VM name you wo
 After the deployment you can see the status of the assignment from the [Guest Assignments page](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Compute%2FvirtualMachines%2Fproviders%2FguestConfigurationAssignments). 
 
 Once the VM reports a compliant status, you should be able to see the installation taking place at the Change Tracking view of the VM and PowerShell 7 should be listed at the VM inventory view.
+
+For reference, built-in configurations and examples can be found from [github.com/azure/azure-policy](https://github.com/Azure/azure-policy/tree/master/samples/GuestConfiguration/package-samples/configurations).
