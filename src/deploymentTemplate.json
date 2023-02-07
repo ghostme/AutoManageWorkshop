@@ -1,0 +1,323 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "envName": {
+            "defaultValue": "azam",
+            "type": "String",
+            "metadata": {
+                "description": "short name for the environment"
+            }
+        },
+        "location": {
+            "defaultValue": "westeurope",
+            "type": "String",
+            "metadata": {
+                "description": "Azure region"
+            }
+        },
+        "numberOfTestVMs": {
+            "defaultValue": 1,
+            "type": "int",
+            "metadata": {
+                "description": "Number of test VMs to create"
+            }
+        },
+        "enablePublicIP": {
+            "defaultValue": false,
+            "type": "bool",
+            "metadata": {
+                "description": "Deploy Public IP with the VM?"
+            }
+        },
+        "amAzureSecurityBaselineAssignmentType": {
+            "type": "string",
+            "defaultValue": "Audit",
+            "allowedValues": [
+                "ApplyAndAutoCorrect",
+                "ApplyAndMonitor",
+                "Audit"
+            ]
+        },
+        "amEnableBackup": {
+            "type": "bool",
+            "defaultValue": true
+        }
+    },
+    "variables": {
+        "storageName": "[format('{0}demo{1}st', parameters('envName'), subString(uniqueString(resourceGroup().id), 0, 4))]",
+        "vmName": "[format('{0}demovm00', parameters('envName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2021-12-01-preview",
+            "name": "[format('{0}-demo-{1}-la', parameters('envName'), parameters('location'))]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "pergb2018"
+                },
+                "retentionInDays": 30,
+                "features": {
+                    "enableLogAccessUsingOnlyResourcePermissions": true
+                },
+                "workspaceCapping": {
+                    "dailyQuotaGb": -1
+                },
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Automanage/configurationProfiles",
+            "apiVersion": "2022-05-04",
+            "name": "[format('{0}-demo-{1}-profile', parameters('envName'), parameters('location'))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-demo-{1}-la', parameters('envName'), parameters('location')))]"
+            ],
+            "properties": {
+                "configuration": {
+                    "Antimalware/Enable": "true",
+                    "Antimalware/EnableRealTimeProtection": "true",
+                    "Antimalware/RunScheduledScan": "true",
+                    "Antimalware/ScanType": "Quick",
+                    "Antimalware/ScanDay": "7",
+                    "Antimalware/ScanTimeInMinutes": "120",
+                    "AzureSecurityBaseline/Enable": true,
+                    "AzureSecurityBaseline/AssignmentType": "[parameters('amAzureSecurityBaselineAssignmentType')]",
+                    "AzureSecurityCenter/Enable": true,
+                    "Backup/Enable": "[parameters('amEnableBackup')]",
+                    "Backup/PolicyName": "dailyBackupPolicy",
+                    "Backup/TimeZone": "UTC",
+                    "Backup/InstantRpRetentionRangeInDays": "2",
+                    "Backup/SchedulePolicy/ScheduleRunFrequency": "Daily",
+                    "Backup/SchedulePolicy/ScheduleRunTimes": [
+                        "2017-01-26T00:00:00Z"
+                    ],
+                    "Backup/SchedulePolicy/SchedulePolicyType": "SimpleSchedulePolicy",
+                    "Backup/RetentionPolicy/RetentionPolicyType": "LongTermRetentionPolicy",
+                    "Backup/RetentionPolicy/DailySchedule/RetentionTimes": [
+                        "2017-01-26T00:00:00Z"
+                    ],
+                    "Backup/RetentionPolicy/DailySchedule/RetentionDuration/Count": "7",
+                    "Backup/RetentionPolicy/DailySchedule/RetentionDuration/DurationType": "Days",
+                    "BootDiagnostics/Enable": true,
+                    "ChangeTrackingAndInventory/Enable": true,
+                    "LogAnalytics/Enable": true,
+                    "LogAnalytics/Reprovision": false,
+                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-demo-{1}-la', parameters('envName'), parameters('location')))]",
+                    "UpdateManagement/Enable": true,
+                    "VMInsights/Enable": true,
+                    "Tags/ResourceGroup": {
+                        "foo": "rg"
+                    },
+                    "Tags/AzureAutomation": {
+                        "foo": "automationAccount"
+                    },
+                    "Tags/LogAnalyticsWorkspace": {
+                        "foo": "workspace"
+                    },
+                    "Tags/RecoveryVault": {
+                        "foo": "recoveryVault"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[greaterOrEquals(1, parameters('numberOfTestVMs'))]",
+            "name": "[variables('storageName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "Storage"
+        },
+        {
+            "name": "[format('{0}-demo-{1}-nsg', parameters('envName'), parameters('location'))]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "nsgRule1",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location'))]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', format('{0}-demo-{1}-nsg', parameters('envName'), parameters('location')))]"
+            ],
+            "tags": {},
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[format('{0}-demo-{1}-subnet', parameters('envName'), parameters('location'))]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', format('{0}-demo-{1}-nsg', parameters('envName'), parameters('location')))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "copy": {
+                "count": "[if(parameters('enablePublicIP'), parameters('numberOfTestVMs'), 0)]",
+                "name": "pip-copy"
+            },
+            "name": "[format('{0}{1}-pip', variables('vmName'), copyIndex())]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "[format('{0}{1}-pip', variables('vmName'), copyIndex())]"
+                }
+            }
+        },
+        {
+            "copy": {
+                "count": "[if(parameters('enablePublicIP'), parameters('numberOfTestVMs'), 0)]",
+                "name": "nic-copy"
+            },
+            "name": "[format('{0}{1}-nic', variables('vmName'), copyIndex())]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location')))]"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[if(parameters('enablePublicIP'), resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}-pip', variables('vmName'), copyIndex())), null())]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location')), format('{0}-demo-{1}-subnet', parameters('envName'), parameters('location')))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "copy": {
+                "count": "[if(parameters('enablePublicIP'), 0, parameters('numberOfTestVMs'))]",
+                "name": "nic-copy"
+            },
+            "name": "[format('{0}{1}-nic', variables('vmName'), copyIndex())]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location')))]"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('{0}-demo-{1}-vnet', parameters('envName'), parameters('location')), format('{0}-demo-{1}-subnet', parameters('envName'), parameters('location')))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "copy": {
+                "count": "[parameters('numberOfTestVMs')]",
+                "name": "vm-copy"
+            },
+            "name": "[format('{0}{1}', variables('vmName'), copyIndex())]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-03-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', format('{0}{1}-nic', variables('vmName'), copyIndex()))]"
+            ],
+            "tags": {
+                "vmNumber": "[copyIndex()]"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_DS1_v2"
+                },
+                "osProfile": {
+                    "computerName": "[format('{0}{1}', variables('vmName'), copyIndex())]",
+                    "adminUsername": "adminUsername",
+                    "adminPassword": "adminPassword123!",
+                    "windowsConfiguration": {
+                        "provisionVmAgent": true
+                    }
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2022-datacenter-azure-edition",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[format('{0}{1}-osDisk', variables('vmName'), copyIndex())]",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}{1}-nic', variables('vmName'), copyIndex()))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageName'))).primaryEndpoints.blob]"
+                    }
+                }
+            }
+        }
+    ]
+}

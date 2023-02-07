@@ -1,0 +1,20 @@
+instance of MSFT_MsiPackage as $MSFT_MsiPackage1ref
+{
+    ModuleVersion = "2.12.0.0";
+    ModuleName = "PSDscResources";
+    Arguments = "/quiet /norestart";
+    ResourceID = "[MsiPackage]PowerShell";
+    Ensure = "Present";
+    Path = "https://github.com/PowerShell/PowerShell/releases/download/v7.3.2/PowerShell-7.3.2-win-x64.msi";
+    SourceInfo = "C:\\Users\\mpuolitaival\\repos\\omat\\AutoManageWorkshop\\src\\dsc\\SoftwareInstallation.ps1::6::9::MsiPackage";
+    ProductId = "{323AD147-6FC4-40CB-A810-2AADF26D868A}";
+    ConfigurationName = "SoftwareInstallation";
+};
+
+instance of OMI_ConfigurationDocument
+{
+    Version="2.0.0";
+    MinimumCompatibleVersion = "1.0.0";
+    CompatibleVersionAdditionalProperties= {"Omi_BaseResource:ConfigurationName"};
+    Name="SoftwareInstallation";
+};

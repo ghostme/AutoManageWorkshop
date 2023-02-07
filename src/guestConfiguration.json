@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vmName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the VM to be onboarded",
+                "displayName": "Virtual Machine name"
+            }
+        },
+        "sasString": {
+            "type": "string",
+            "metadata": {
+                "description": "SAS token URI for the configuration package",
+                "displayName": "SAS token URI"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "apiVersion": "2021-01-25",
+            "type": "Microsoft.Compute/virtualMachines/providers/guestConfigurationAssignments",
+            "name": "[format('{0}/Microsoft.GuestConfiguration/SoftwareInstallation', parameters('vmName'))]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "guestConfiguration": {
+                    "name": "SoftwareInstallation",
+                    "contentUri": "[parameters('sasString')]",
+                    "contentHash": "4C22BB91C83D9A09A21AEB268E0A0B62F06CDB0F1172A6B3775329FC61B329B7",
+                    "version": "1.0.0",
+                    "assignmentType": "ApplyAndMonitor"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
