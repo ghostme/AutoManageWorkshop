@@ -14,7 +14,7 @@ Azure Automanage machine best practices is a service that eliminates the need to
 
 Click on the Deploy to Azure button to start the deployment of the test environment.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fm-puolitaival%2FAutomanageWorkshop%2Fmain%2Fsrc%2FdeploymentTemplate.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/ghostme/AutoManageWorkshop/main/src/guestConfigurationCustom.json)
 
 After clicking the link and signing in to your Azure environment, you should be greeted with a page with contents similar to this:
 
