@@ -9,6 +9,11 @@
                 "description": "short name for the environment"
             }
         },
+        "logName":
+        {
+            "defaultValue":"tstlaw",
+            "type": "String",
+        },
         "numberOfTestVMs": {
             "defaultValue": 1,
             "type": "int",
@@ -45,7 +50,7 @@
         {
             "type": "Microsoft.OperationalInsights/workspaces",
             "apiVersion": "2021-12-01-preview",
-            "name": "tstlaw",
+            "name": "[parameters('logName')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "sku": {
@@ -68,7 +73,7 @@
             "name": "[format('{0}-demo-{1}-profile', parameters('envName'), resourceGroup().location)]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces', 'tslaw')]"
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('tstlaw'))]"
             ],
             "properties": {
                 "configuration": {
@@ -100,7 +105,7 @@
                     "ChangeTrackingAndInventory/Enable": true,
                     "LogAnalytics/Enable": true,
                     "LogAnalytics/Reprovision": false,
-                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', 'tstlaw')]",
+                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('tstlaw'))]",
                     "UpdateManagement/Enable": true,
                     "VMInsights/Enable": true,
                     "Tags/ResourceGroup": {
