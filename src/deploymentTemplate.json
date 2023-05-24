@@ -12,7 +12,7 @@
         "logName":
         {
             "defaultValue":"tstlaw",
-            "type": "String",
+            "type": "String"
         },
         "numberOfTestVMs": {
             "defaultValue": 1,
@@ -73,7 +73,7 @@
             "name": "[format('{0}-demo-{1}-profile', parameters('envName'), resourceGroup().location)]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('tstlaw'))]"
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logName'))]"
             ],
             "properties": {
                 "configuration": {
@@ -105,7 +105,7 @@
                     "ChangeTrackingAndInventory/Enable": true,
                     "LogAnalytics/Enable": true,
                     "LogAnalytics/Reprovision": false,
-                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('tstlaw'))]",
+                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logName'))]",
                     "UpdateManagement/Enable": true,
                     "VMInsights/Enable": true,
                     "Tags/ResourceGroup": {
