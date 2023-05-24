@@ -103,7 +103,7 @@
                     "BootDiagnostics/Enable": true,
                     "ChangeTrackingAndInventory/Enable": true,
                     "LogAnalytics/Enable": true,
-                    "LogAnalytics/Reprovision": false,
+                    "LogAnalytics/Reprovision": true,
                     "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logName'))]",
                     "UpdateManagement/Enable": true,
                     "VMInsights/Enable": true,
