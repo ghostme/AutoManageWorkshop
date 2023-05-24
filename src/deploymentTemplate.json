@@ -104,7 +104,7 @@
                     "ChangeTrackingAndInventory/Enable": true,
                     "LogAnalytics/Enable": true,
                     "LogAnalytics/Reprovision": true,
-                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logName'))]",
+                    "LogAnalytics/Workspace": "/subscriptions/10c1c1c4-c34c-4a6f-b4bd-8560ab234169/resourceGroups/AutomanageRG/providers/Microsoft.OperationalInsights/workspaces/tstlaw",
                     "UpdateManagement/Enable": true,
                     "VMInsights/Enable": true,
                     "Tags/ResourceGroup": {
