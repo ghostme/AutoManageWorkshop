@@ -9,8 +9,7 @@
                 "description": "short name for the environment"
             }
         },
-        "logName":
-        {
+        "logName": {
             "defaultValue":"tstlaw",
             "type": "String"
         },
