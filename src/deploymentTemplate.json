@@ -68,7 +68,7 @@
             "name": "[format('{0}-demo-{1}-profile', parameters('envName'), resourceGroup().location)]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces', tslaw)]"
+                "[resourceId('Microsoft.OperationalInsights/workspaces', 'tslaw')]"
             ],
             "properties": {
                 "configuration": {
@@ -100,7 +100,7 @@
                     "ChangeTrackingAndInventory/Enable": true,
                     "LogAnalytics/Enable": true,
                     "LogAnalytics/Reprovision": false,
-                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', tstlaw)]",
+                    "LogAnalytics/Workspace": "[resourceId('Microsoft.OperationalInsights/workspaces', 'tstlaw')]",
                     "UpdateManagement/Enable": true,
                     "VMInsights/Enable": true,
                     "Tags/ResourceGroup": {
